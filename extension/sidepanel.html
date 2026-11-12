@@ -1,8 +1,170 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Socratic Code Mentor</title><link rel="stylesheet" href="styles.css"></head><body>
-<header><div class="eyebrow">DSA PRACTICE TOOL</div><h1>Socratic Code Mentor</h1><p>Work it out. One hint at a time.</p></header><main>
-<button id="importBtn" class="secondary import">Import from page</button><div id="status" class="status" role="status">Checking local backend…</div>
-<label for="problem">Problem</label><textarea id="problem" rows="5" placeholder="Problem statement (auto-import or paste)"></textarea>
-<div class="grid"><div><label for="language">Language</label><select id="language"><option>Python</option><option>JavaScript</option><option>Java</option><option>C++</option><option>C</option><option>C#</option><option>Go</option></select></div><div><label for="level">Hint level</label><select id="level"><option value="1">1 · Concept</option><option value="2">2 · Approach</option><option value="3">3 · Debugging clue</option></select></div></div>
-<label for="code">Your code</label><textarea id="code" class="code" rows="9" spellcheck="false" placeholder="Paste your attempt if import cannot read the editor"></textarea>
-<div class="actions"><button id="askBtn">Get guidance</button><button id="clearBtn" class="secondary">Clear</button></div>
-<section id="result" class="result hidden" aria-live="polite"><div class="result-head"><span>MENTOR NOTES</span><button id="copyBtn" class="text-button">Copy notes</button></div><div id="feedback"></div></section><footer>Local prototype · AI feedback can be wrong. Verify suggestions with tests.</footer></main><script src="sidepanel.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Socratic Code Mentor</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="top-row">
+      <!-- Pixel owl. Parts have classes so CSS can animate moods. -->
+      <div id="mascot" class="mascot idle" aria-hidden="true">
+        <svg viewBox="0 0 16 16" width="42" height="42" shape-rendering="crispEdges">
+          <g class="o-body">
+            <rect x="2" y="2" width="2" height="2" class="o-ear"/>
+            <rect x="12" y="2" width="2" height="2" class="o-ear"/>
+            <rect x="3" y="3" width="10" height="1" class="o-fur"/>
+            <rect x="2" y="4" width="12" height="10" class="o-fur"/>
+            <rect x="5" y="9" width="6" height="5" class="o-belly"/>
+            <rect x="6" y="10" width="1" height="1" class="o-spot"/>
+            <rect x="9" y="12" width="1" height="1" class="o-spot"/>
+            <rect x="3" y="5" width="4" height="4" class="o-eye"/>
+            <rect x="9" y="5" width="4" height="4" class="o-eye"/>
+            <g class="o-pupils">
+              <rect x="5" y="6" width="2" height="2" class="o-pupil"/>
+              <rect x="11" y="6" width="2" height="2" class="o-pupil"/>
+            </g>
+            <rect x="3" y="5" width="4" height="4" class="o-lid"/>
+            <rect x="9" y="5" width="4" height="4" class="o-lid"/>
+            <rect x="3" y="7" width="4" height="1" class="o-smile"/>
+            <rect x="9" y="7" width="4" height="1" class="o-smile"/>
+            <rect x="7" y="8" width="2" height="2" class="o-beak"/>
+            <rect x="4" y="14" width="2" height="1" class="o-beak"/>
+            <rect x="10" y="14" width="2" height="1" class="o-beak"/>
+          </g>
+          <g class="o-mark-q"><rect x="14" y="0" width="2" height="1"/><rect x="15" y="1" width="1" height="1"/><rect x="14" y="2" width="1" height="1"/><rect x="14" y="4" width="1" height="1"/></g>
+          <g class="o-mark-z"><rect x="13" y="0" width="3" height="1"/><rect x="14" y="1" width="1" height="1"/><rect x="13" y="2" width="3" height="1"/></g>
+        </svg>
+      </div>
+      <div class="brand">
+        <h1>Socratic Mentor</h1>
+        <p id="mascotLine" class="tagline">Work it out, one idea at a time.</p>
+      </div>
+      <div class="top-actions">
+        <button id="themeBtn" class="icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">
+          <svg class="px-ico icon-moon" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="0" width="3" height="1"/><rect x="1" y="1" width="2" height="1"/><rect x="0" y="2" width="2" height="4"/><rect x="1" y="6" width="3" height="1"/><rect x="5" y="6" width="2" height="1"/><rect x="7" y="5" width="1" height="1"/><rect x="2" y="7" width="4" height="1"/></svg>
+          <svg class="px-ico icon-sun" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="2" width="4" height="4"/><rect x="3" y="0" width="2" height="1"/><rect x="3" y="7" width="2" height="1"/><rect x="0" y="3" width="1" height="2"/><rect x="7" y="3" width="1" height="2"/><rect x="1" y="1" width="1" height="1"/><rect x="6" y="1" width="1" height="1"/><rect x="1" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/></svg>
+        </button>
+        <button id="settingsBtn" class="icon-btn" aria-label="Settings" title="Settings">
+          <svg class="px-ico" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="0" width="2" height="1"/><rect x="3" y="7" width="2" height="1"/><rect x="0" y="3" width="1" height="2"/><rect x="7" y="3" width="1" height="2"/><rect x="1" y="1" width="6" height="6"/><rect x="3" y="3" width="2" height="2" class="px-hole"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="stats">
+      <span class="stat" id="streakChip" title="Day streak">
+        <svg class="px-ico flame" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="0" width="2" height="2" class="f1"/><rect x="2" y="2" width="4" height="4" class="f1"/><rect x="1" y="5" width="6" height="2" class="f1"/><rect x="3" y="3" width="2" height="3" class="f2"/></svg>
+        <b id="streakCount">0</b> day streak
+      </span>
+      <span class="stat" id="xpChip" title="Experience points"><b id="xpCount">0</b> XP</span>
+      <span class="xp-bar" id="xpBar" aria-hidden="true"></span>
+    </div>
+  </header>
+
+  <main>
+    <!-- What the mentor is reading -->
+    <section class="source block" aria-label="Page connection">
+      <div class="source-row">
+        <span id="syncDot" class="sync-dot" aria-hidden="true"></span>
+        <span id="siteChip" class="site-chip">No page yet</span>
+        <span id="syncText" class="sync-text" role="status">Looking for a coding page…</span>
+        <button id="refreshBtn" class="icon-btn small" aria-label="Re-read the page" title="Re-read the page">
+          <svg class="px-ico" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="0" width="4" height="1"/><rect x="1" y="1" width="1" height="1"/><rect x="6" y="1" width="1" height="1"/><rect x="0" y="2" width="1" height="4"/><rect x="1" y="6" width="1" height="1"/><rect x="2" y="7" width="4" height="1"/><rect x="5" y="2" width="3" height="1"/><rect x="7" y="0" width="1" height="2"/></svg>
+        </button>
+      </div>
+
+      <div id="permBanner" class="banner" hidden>
+        <p id="permText">I can't read this page yet.</p>
+        <button id="allowBtn" class="btn btn-soft">Allow on this site</button>
+      </div>
+
+      <div id="confidenceBanner" class="banner warn" hidden>
+        <p id="confidenceText">I'm not sure I found the problem. Select the text on the page or paste it.</p>
+        <div class="banner-actions">
+          <button id="useSelectionBtn" class="btn btn-soft">Use my selection</button>
+          <button id="pasteBtn" class="btn btn-ghost">Paste it</button>
+        </div>
+      </div>
+
+      <details id="readingDetails" class="reading">
+        <summary>View what I'm reading</summary>
+        <div class="field-head">
+          <label for="problem">Problem</label>
+          <span id="problemSync" class="field-sync">Synced</span>
+        </div>
+        <textarea id="problem" rows="5" placeholder="Problem statement: read from the page, or paste it here"></textarea>
+        <div class="field-head">
+          <label for="code">Your code</label>
+          <span id="codeSync" class="field-sync">Synced</span>
+        </div>
+        <textarea id="code" class="mono" rows="8" spellcheck="false" placeholder="Your code: mirrored from the page's editor"></textarea>
+      </details>
+
+      <div class="field-row">
+        <label for="language">Language</label>
+        <select id="language"></select>
+      </div>
+
+      <div class="field-col">
+        <span class="field-label" id="levelLabel">Hint level</span>
+        <div class="segmented" role="radiogroup" aria-labelledby="levelLabel" id="levelGroup">
+          <button role="radio" data-level="1" aria-checked="true">Basic</button>
+          <button role="radio" data-level="2" aria-checked="false">More</button>
+          <button role="radio" data-level="3" aria-checked="false">Detailed</button>
+        </div>
+      </div>
+
+      <button id="askBtn" class="btn btn-primary btn-big">
+        <span class="btn-label">Get hint</span>
+        <span class="kbd" aria-hidden="true">Ctrl ↵</span>
+      </button>
+      <label class="toggle">
+        <input type="checkbox" id="autoGuide">
+        <span>Auto-hint when I pause typing</span>
+      </label>
+    </section>
+
+    <!-- Guidance -->
+    <section id="output" class="output" aria-busy="false"></section>
+    <div id="announcer" class="sr-only" aria-live="polite"></div>
+
+    <!-- Collection -->
+    <details class="collection block" id="collection">
+      <summary>Concepts learned <span id="conceptCount" class="count">0</span></summary>
+      <div id="badges" class="concept-grid"></div>
+    </details>
+
+    <footer>AI feedback can be wrong. Check ideas with your own tests. The mentor never runs or submits your code.</footer>
+  </main>
+
+  <dialog id="settingsDialog" aria-labelledby="settingsTitle">
+    <form method="dialog" class="settings">
+      <h2 id="settingsTitle">Settings</h2>
+      <label for="apiBase">Backend URL</label>
+      <input id="apiBase" type="url" placeholder="http://127.0.0.1:8000">
+      <label for="themeSelect">Theme</label>
+      <select id="themeSelect">
+        <option value="system">Match system</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+      <button type="button" id="resetProgressBtn" class="btn btn-ghost danger">Reset XP and collection</button>
+      <div class="dialog-actions">
+        <button value="cancel" class="btn btn-ghost">Cancel</button>
+        <button value="save" id="saveSettingsBtn" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="confetti" class="confetti" aria-hidden="true"></div>
+
+  <script src="extractors/language.js"></script>
+  <script src="panel/state.js"></script>
+  <script src="panel/api.js"></script>
+  <script src="panel/sync.js"></script>
+  <script src="panel/render.js"></script>
+  <script src="panel/gamify.js"></script>
+  <script src="sidepanel.js"></script>
+</body>
+</html>
