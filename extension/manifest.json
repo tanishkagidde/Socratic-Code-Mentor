@@ -1,12 +1,27 @@
 {
   "manifest_version": 3,
   "name": "Socratic Code Mentor",
-  "version": "1.0.0",
-  "description": "Progressive DSA hints while you practice.",
-  "permissions": ["sidePanel", "activeTab", "tabs"],
-  "host_permissions": ["http://127.0.0.1:8000/*", "http://localhost:8000/*"],
-  "action": {"default_title": "Open Socratic Code Mentor"},
-  "background": {"service_worker": "service-worker.js"},
-  "side_panel": {"default_path": "sidepanel.html"},
-  "content_scripts": [{"matches": ["https://leetcode.com/*", "https://www.hackerrank.com/*"], "js": ["content.js"], "run_at": "document_idle"}]
+  "version": "2.0.0",
+  "description": "Concept-first DSA hints that follow your code as you type, on any coding site.",
+  "minimum_chrome_version": "116",
+  "permissions": ["sidePanel", "activeTab", "scripting", "storage"],
+  "host_permissions": [
+    "http://127.0.0.1:8000/*",
+    "http://localhost:8000/*",
+    "https://leetcode.com/*",
+    "https://leetcode.cn/*",
+    "https://www.hackerrank.com/*",
+    "https://codeforces.com/*",
+    "https://www.codechef.com/*",
+    "https://atcoder.jp/*",
+    "https://www.geeksforgeeks.org/*",
+    "https://www.codewars.com/*",
+    "https://app.coderpad.io/*",
+    "https://www.programiz.com/*",
+    "https://www.hackerearth.com/*"
+  ],
+  "optional_host_permissions": ["https://*/*", "http://*/*"],
+  "action": { "default_title": "Open Socratic Code Mentor" },
+  "background": { "service_worker": "service-worker.js" },
+  "side_panel": { "default_path": "sidepanel.html" }
 }
