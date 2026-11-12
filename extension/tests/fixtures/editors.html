@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Editor API fixture (Monaco, CodeMirror 5, Ace)</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.6/ace.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+  <style>.box { width: 640px; height: 160px; border: 1px solid #ccc; margin: 8px 0; }</style>
+</head>
+<body>
+  <!-- Manual / dev fixture: loads three real editors so the MAIN-world
+       bridge (extractors/bridge-main.js) can be checked against their APIs.
+       The Monaco model is 200 lines long so most of it is NOT rendered in
+       the DOM; only the editor API returns the full text. -->
+  <h2>Problem</h2>
+  <p>Return the sum of all even numbers in the list. Input: a list of integers. Output: an integer.</p>
+  <div id="monaco" class="box"></div>
+  <textarea id="cm"># CodeMirror 5
+def solve(nums):
+    return sum(n for n in nums if n % 2 == 0)</textarea>
+  <div id="ace" class="box">// Ace
+function solve(nums) { return nums.filter(n => n % 2 === 0).reduce((a, b) => a + b, 0); }</div>
+  <script>
+    window.cm = CodeMirror.fromTextArea(document.getElementById("cm"), { mode: "python", lineNumbers: true });
+    window.aceEd = ace.edit("ace");
+    aceEd.session.setMode("ace/mode/javascript");
+    require.config({ paths: { vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs" } });
+    require(["vs/editor/editor.main"], () => {
+      const lines = ["#include <vector>", "using namespace std;", "int solve(vector<int>& nums) {", "  int total = 0;"];
+      for (let i = 0; i < 195; i++) lines.push(`  // filler line ${i}`);
+      lines.push("  return total; // LAST LINE", "}");
+      window.mon = monaco.editor.create(document.getElementById("monaco"), { value: lines.join("\n"), language: "cpp" });
+      document.title += " (ready)";
+    });
+  </script>
+</body>
+</html>

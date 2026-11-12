@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Panel preview (dev only)</title>
+  <style>html, body { margin: 0; background: #888; } iframe { border: 0; width: 100%; display: block; }</style>
+</head>
+<body>
+  <!-- Dev-only: renders the side panel with MOCK guidance so the UI can be
+       reviewed without calling Gemini. Serve extension/ over http, then open
+       tests/preview.html?theme=dark|light&state=result|thinking|error|empty -->
+  <iframe id="frame" src="../sidepanel.html" height="2000"></iframe>
+  <script>document.getElementById("frame").style.width = (new URLSearchParams(location.search).get("w") || 380) + "px";</script>
+  <script>
+    const q = new URLSearchParams(location.search);
+    const SAMPLE = {
+      status: q.get("status") || "nearly_correct",
+      concept_gap: {
+        name: "Hash Map For Lookups",
+        one_line_explanation: "Remember each number you've seen so its partner is found in one step.",
+        why_it_matters: "Your nested loop checks every pair, which gets slow for big inputs.",
+      },
+      teach: {
+        format: q.get("format") || "worked_example",
+        content: "nums = [2, 7, 11], target = 9\n- see 2: need 7, not seen yet, remember 2\n- see 7: need 2, seen at index 0, done",
+      },
+      try_next: "Write down what your map holds after each step for nums = [3, 3].",
+      check_question: "Which key do you look up when you reach 7?",
+      more: { complexity: "O(n) time, O(n) space.", edge_case: "The same value twice, like [3, 3]." },
+    };
+
+    const frame = document.getElementById("frame");
+    frame.addEventListener("load", () => {
+      setTimeout(() => {
+        const w = frame.contentWindow;
+        const d = w.document;
+        if (q.get("theme")) d.documentElement.dataset.theme = q.get("theme");
+        d.getElementById("siteChip").textContent = "LeetCode";
+        d.getElementById("syncDot").dataset.state = "live";
+        d.getElementById("syncText").textContent = "Synced just now";
+        w.Gamify.progress = {
+          xp: Number(q.get("xp") || 140), streak: 4, lastDay: "",
+          concepts: { "Hash Map For Lookups": { count: 3, first: "2026-11-10" }, "Base Case For Recursion": { count: 1, first: "2026-11-11" }, "Two-Pointer Invariant": { count: 2, first: "2026-11-12" } },
+        };
+        w.Gamify.paint();
+        w.Render.clear();
+        const state = q.get("state") || "result";
+        const noop = () => {};
+        if (state === "result") {
+          w.Render.finish(SAMPLE, { level: 1, cached: false, onTry: noop, onBigger: noop, onCopy: noop, onClear: noop });
+          w.Gamify.mood("happy", "Nice, you're close!");
+        } else if (state === "thinking") {
+          w.Render.skeleton();
+          w.Gamify.mood("thinking", "Hmm, let me think…");
+        } else if (state === "error") {
+          w.Render.error({ message: "I can't reach the mentor backend. Start it with python -m uvicorn main:app --port 8000.", retryable: true }, noop);
+          w.Gamify.mood("confused", "I can't reach my brain.");
+        }
+        if (q.get("open")) d.getElementById("collection").open = true;
+        if (q.get("reading")) d.getElementById("readingDetails").open = true;
+        frame.height = d.documentElement.scrollHeight;
+      }, 1200);
+    });
+  </script>
+</body>
+</html>
